@@ -10,9 +10,21 @@ import com.bumptech.glide.request.RequestOptions
 import com.moladin.myapplication.core.response.DataItem
 import com.moladin.myapplication.databinding.UserItemsBinding
 
-class Adapter : PagingDataAdapter<DataItem, Adapter.UserViewHolder>(DiffUtilCallBack) {
+class Adapter : PagingDataAdapter<DataItem, Adapter.UserViewHolder>(diffUtilCallBack) {
 
-    private val listUser = ArrayList<DataItem>()
+    class UserViewHolder(val binding : UserItemsBinding) : RecyclerView.ViewHolder(binding.root)
+
+    companion object {
+        val diffUtilCallBack = object : DiffUtil.ItemCallback<DataItem>() {
+            override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val binding = UserItemsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,31 +32,17 @@ class Adapter : PagingDataAdapter<DataItem, Adapter.UserViewHolder>(DiffUtilCall
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        holder.bind(listUser[position])
-    }
+        val currUser = getItem(position)
 
-    class UserViewHolder(private val binding : UserItemsBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: DataItem) {
-            with(binding) {
-                Glide.with(itemView.context)
-                    .load(data.avatar)
+        holder.binding.apply {
+            holder.itemView.apply {
+                tvEmail.text = currUser?.email
+                tvUserName.text = currUser?.firstName
+                Glide.with(context)
+                    .load(currUser?.avatar)
                     .apply(RequestOptions())
                     .into(ivPhoto)
-
-                tvEmail.text = data.email
-                tvUserName.text = data.firstName
             }
         }
-    }
-
-    object DiffUtilCallBack: DiffUtil.ItemCallback<DataItem>() {
-        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
-            return oldItem == newItem
-        }
-
     }
 }

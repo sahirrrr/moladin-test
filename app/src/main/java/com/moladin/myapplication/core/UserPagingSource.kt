@@ -8,26 +8,24 @@ import com.moladin.myapplication.core.response.DataItem
 
 class UserPagingSource(private val apiService: ApiService) : PagingSource<Int, DataItem>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DataItem> {
-         try {
-            val currentLoadingPageKey = params.key ?: 1
-            val response = apiService.getUser(currentLoadingPageKey)
+         return try {
+            val currentPage = params.key ?: 1
+            val response = apiService.getUser(currentPage)
             val responseData = mutableListOf<DataItem>()
             val data = response.body()?.data ?: emptyList()
             responseData.addAll(data)
 
-            val prevKey = if (currentLoadingPageKey == 1) null else currentLoadingPageKey - 1
-
-            return LoadResult.Page(
+             LoadResult.Page(
                 data = responseData,
-                prevKey = prevKey,
-                nextKey = currentLoadingPageKey.plus(1)
+                prevKey = if (currentPage == 1) null else -1,
+                nextKey = currentPage.plus(1)
             )
         } catch (e: Exception) {
-            return LoadResult.Error(e)
+            LoadResult.Error(e)
         }
     }
 
     override fun getRefreshKey(state: PagingState<Int, DataItem>): Int? {
-        return state.anchorPosition
+        return null
     }
 }
