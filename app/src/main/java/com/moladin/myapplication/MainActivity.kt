@@ -2,6 +2,7 @@ package com.moladin.myapplication
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.moladin.myapplication.databinding.ActivityMainBinding
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getUser().observe(this) { user ->
             if (user != null) {
                 userAdapter.addUser(user)
+                binding.progressBar.visibility = View.GONE
             }
         }
 
